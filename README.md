@@ -30,13 +30,12 @@ https://huggingface.co/unsloth/Qwen3.8-27B-GGUF/resolve/main/Qwen3.8-27B-Q6_K.gg
 https://huggingface.co/unsloth/Qwen3.8-27B-GGUF/resolve/main/mmproj-F16.gguf          0.93 GB
 ```
 
-## Quick deploy (on the Arc PC)
+## Quick deploy (verified on the Arc box 2026-08-17)
+GGUFs already downloaded to `M:\LLM's\.lmstudio\unsloth\` (Q6_K 22.88 GB + mmproj-F16 0.93 GB).
+The staged launcher lives at `M:\LLMs\start-qwen38-arc.ps1` — run it:
 ```powershell
-# 1. download
-.\scripts\download-qwen38-arc.ps1
-# 2. serve (needs the existing llama.cpp-SYCL build)
-.\scripts\start-qwen38-arc.ps1
-# 3. test
+powershell -ExecutionPolicy Bypass -File M:\LLMs\start-qwen38-arc.ps1
+# 2. test
 curl http://localhost:8081/v1/models   # expect qwen3.8-27b-q6
 ```
 Full detail in `docs/ARC-DEPLOY.md` (incl. Hermes `auxiliary.vision` wiring).

@@ -2,7 +2,7 @@
 # Edit the two paths below (LLAMA_BIN = your SYCL deploy dir) then run this script.
 $ErrorActionPreference = "Stop"
 
-$LLAMA_BIN = "M:\LLMs\llama-b9334-bin-win-sycl-x64"   # <-- point at your llama.cpp-SYCL deploy dir
+$LLAMA_BIN = "M:\LLMs\llama-b10069-bin-win-sycl-x64"   # <-- actual SYCL deploy dir on the Arc box (staged 2026-08-17)
 $MODEL     = "M:\LLM's\.lmstudio\unsloth\Qwen3.8-27B-Q6_K.gguf"
 $MMPROJ    = "M:\LLM's\.lmstudio\unsloth\mmproj-F16.gguf"
 

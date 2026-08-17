@@ -3,10 +3,11 @@
 Target machine: the workstation where the **Intel Arc Pro B70 (32 GB)** lives (the `.30` box in our LAN story). DeepSeek on the Sparks is **untouched** — this is a completely separate service.
 
 ## 0. Pre-existing env (from our setup — verify on the target box)
-- llama.cpp-SYCL build: source `M:\LLMs\llama-cpp-sycl\llama.cpp`, builds via `M:\LLMs\llama-cpp-sycl\build-latest.sh [tag]`, deploy dir `M:\LLMs\llama-b9334-bin-win-sycl-x64\`
-- Intel LLVM 2026.0.0, Level-Zero backend, Arc Pro B70 32 GB (SM12.1-like / SYCL `l0`)
+- llama.cpp-SYCL build: source `M:\LLMs\llama-cpp-sycl\llama.cpp`, builds via `M:\LLMs\llama-cpp-sycl\build-latest.sh [tag]`, deploy dir **`M:\LLMs\llama-b10069-bin-win-sycl-x64\`** (b10069, Clang 20.1.8 — confirmed present 2026-08-17)
+- Intel LLVM Level-Zero backend, Arc Pro B70 32 GB
 - GGUF collection: `M:\LLM's\.lmstudio\unsloth\`
-- The old Qwen3.6-27B ran MTP spec-decode via `M:\LLMs\start-toby-27b-mtp.ps1` and served at `localhost:8081`
+- Staged launch script (restart-loop, crash logs): **`M:\LLMs\start-qwen38-arc.ps1`** — this box, ready to run
+- The old Qwen3.6-27B pipeline ran via `M:\LLMs\start-toby-27b-mtp.ps1` at `localhost:8081` (currently parked — port 8081 free)
 
 > If the old binary predates `qwen3_5`, rebuild: `build-latest.sh` (see llama-cpp-sycl skill for flags). `qwen3_5` arch support landed in llama.cpp by Aug 2026; verify `llama-server.exe -m <model> --version` loads the arch without "unknown architecture".
 
