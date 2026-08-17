@@ -1,21 +1,37 @@
 # Start Qwen3.8-27B (Q6_K + mmproj-F16) on the Intel Arc Pro B70 via llama.cpp-SYCL
-# Edit the two paths below (LLAMA_BIN = your SYCL deploy dir) then run this script.
+# Flags VERIFIED on this box 2026-08-17 (text + vision smoke test). ~19 t/s decode.
+# For the restart-loop + crash-log variant already staged here, use:
+#   M:\LLMs\start-qwen38-arc.ps1
 $ErrorActionPreference = "Stop"
 
-$LLAMA_BIN = "M:\LLMs\llama-b10069-bin-win-sycl-x64"   # <-- actual SYCL deploy dir on the Arc box (staged 2026-08-17)
+$LLAMA_BIN = "M:\LLMs\llama-b10069-bin-win-sycl-x64"
 $MODEL     = "M:\LLM's\.lmstudio\unsloth\Qwen3.8-27B-Q6_K.gguf"
 $MMPROJ    = "M:\LLM's\.lmstudio\unsloth\mmproj-F16.gguf"
 
-if (!(Test-Path (Join-Path $LLAMA_BIN "llama-server.exe"))) { throw "llama-server.exe not found in $LLAMA_BIN - check deploy dir / rebuild via build-latest.sh" }
+if (!(Test-Path (Join-Path $LLAMA_BIN "llama-server.exe"))) { throw "llama-server.exe not found in $LLAMA_BIN" }
 if (!(Test-Path $MODEL) -or !(Test-Path $MMPROJ)) { throw "Model or mmproj missing - run .\scripts\download-qwen38-arc.ps1 first" }
 
 & (Join-Path $LLAMA_BIN "llama-server.exe") `
     -m $MODEL `
     --mmproj $MMPROJ `
+    --host 127.0.0.1 --port 8081 `
+    -c 128000 `
     -ngl 99 `
-    --host 0.0.0.0 --port 8081 `
-    -c 32768 `
-    --parallel 2 `
-    --alias qwen3.8-27b-q6
+    -t 8 `
+    --main-gpu 0 `
+    --split-mode none `
+    --parallel 1 `
+    --alias qwen3.8-27b-q6 `
+    -ub 1024 `
+    -b 1024 `
+    --no-mmap `
+    --mlock `
+    --no-warmup `
+    --flash-attn on `
+    --jinja `
+    --cache-type-k q4_0 `
+    --cache-type-v q4_0 `
+    --cache-ram 4096 `
+    --temp 0.6 --top-p 0.95 --top-k 20
 
 if ($LASTEXITCODE -ne 0) { Write-Host "server exited with code $LASTEXITCODE" }
