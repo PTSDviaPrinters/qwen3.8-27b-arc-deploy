@@ -1,7 +1,9 @@
 # Qwen3.8-27B - download Q6_K + mmproj to the Arc box's GGUF dir
 # Resumable (curl -C -), size-verified. Run from Powershell, any dir.
 # Env note: NOT an MSYS shell - native Powershell/curl.exe paths work as-is.
-$ErrorActionPreference = "Stop"
+# NOTE: keep EAP at Continue, NOT Stop. Under Stop, PowerShell treats any native-exe
+# stderr (llama-server/curl both write there) as a terminating NativeCommandError.
+$ErrorActionPreference = "Continue"
 
 $DestDir  = "M:\LLM's\.lmstudio\unsloth"
 $Files = @(

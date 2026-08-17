@@ -2,7 +2,9 @@
 # Flags VERIFIED on this box 2026-08-17 (text + vision smoke test). ~19 t/s decode.
 # For the restart-loop + crash-log variant already staged here, use:
 #   M:\LLMs\start-qwen38-arc.ps1
-$ErrorActionPreference = "Stop"
+# NOTE: keep EAP at Continue, NOT Stop. Under Stop, PowerShell treats any native-exe
+# stderr (llama-server/curl both write there) as a terminating NativeCommandError.
+$ErrorActionPreference = "Continue"
 
 $LLAMA_BIN = "M:\LLMs\llama-b10069-bin-win-sycl-x64"
 $MODEL     = "M:\LLM's\.lmstudio\unsloth\Qwen3.8-27B-Q6_K.gguf"
