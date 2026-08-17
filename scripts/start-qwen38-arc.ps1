@@ -15,7 +15,7 @@ if (!(Test-Path $MODEL) -or !(Test-Path $MMPROJ)) { throw "Model or mmproj missi
     -m $MODEL `
     --mmproj $MMPROJ `
     --host 127.0.0.1 --port 8081 `
-    -c 128000 `
+    -c 262144 `
     -ngl 99 `
     -t 8 `
     --main-gpu 0 `
@@ -29,9 +29,9 @@ if (!(Test-Path $MODEL) -or !(Test-Path $MMPROJ)) { throw "Model or mmproj missi
     --no-warmup `
     --flash-attn on `
     --jinja `
-    --cache-type-k q4_0 `
-    --cache-type-v q4_0 `
-    --cache-ram 4096 `
+    --cache-type-k q8_0 `
+    --cache-type-v q8_0 `
+    --cache-ram 0 `
     --temp 0.6 --top-p 0.95 --top-k 20
 
 if ($LASTEXITCODE -ne 0) { Write-Host "server exited with code $LASTEXITCODE" }

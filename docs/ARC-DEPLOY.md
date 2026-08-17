@@ -24,19 +24,29 @@ curl.exe -L -C - -o mmproj-F16.gguf       "https://huggingface.co/unsloth/Qwen3.
 ```
 Expected sizes: **Q6_K = 22.88 GB** · **mmproj-F16 = 0.93 GB** (the script verifies).
 
-## 2. Serve (start-qwen38-arc.ps1)
-Point `$LLAMA_BIN` at your SYCL deploy dir, then it runs roughly:
+## 2. Serve (start-qwen38-arc.ps1 — flags tuned & verified 2026-08-17)
+Tuned config (native 256K, KV q8_0, pure-GPU, no RAM spill — all verified on this box):
 ```powershell
 & "$LLAMA_BIN\llama-server.exe" `
   -m "M:\LLM's\.lmstudio\unsloth\Qwen3.8-27B-Q6_K.gguf" `
   --mmproj "M:\LLM's\.lmstudio\unsloth\mmproj-F16.gguf" `
-  -ngl 99 --host 0.0.0.0 --port 8081 `
-  -c 32768 --parallel 2
+  -ngl 99 --host 127.0.0.1 --port 8081 `
+  -c 262144 --parallel 1 -t 8 `
+  --main-gpu 0 --split-mode none `
+  --no-mmap --mlock --flash-attn on --jinja `
+  --cache-type-k q8_0 --cache-type-v q8_0 --cache-ram 0 `
+  --alias qwen3.8-27b-q6
 ```
+Tuning results (sweep log: `scripts/kv-context-sweep.sh`):
+- 256K native context @ KV q4_0, pure GPU → **PASS** (20 t/s)
+- 256K native context @ KV **q8_0**, pure GPU → **PASS** (20 t/s) ← **adopted (best KV that fits)**
+- 256K @ KV f16 → **FAIL** (this is the real 32 GB ceiling bracket)
+- 320K/300K with `--rope-scaling linear` → boots but **llama.cpp caps the slot back to 262144** (training-ctx cap). Skip beyond-native; not real.
+- `--cache-ram` unnecessary at these settings — everything stays in-card. Notes below are the earlier q4 defaults.
+
 Notes:
-- `-ngl 99` = full offload to the Arc (Q6 + mmproj ≈ 23.8 GB < 32 GB, comfortable)
-- `-c 32768` is a sane default; the model natively supports 256K — raise it if you have the RAM for KV, but 32–64K is the practical spot on shared memory
-- MTP spec-decode: if your build has the draft model path from the Qwen3.6 era, the 3.8 draft equivalents may exist (Jackrong/esatapedico publish MTP GGUFs) — optional, adds complexity, skip for v1
+- `-ngl 99` = full offload to the Arc (Q6 + mmproj ≈ 23.8 GB < 32 GB)
+- KV at q8_0 vs q4_0: double the KV precision for the same context, still fits — decode speed unchanged (~19–20 t/s measured)
 
 ## 3. Smoke test
 ```powershell
